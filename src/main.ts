@@ -3,7 +3,7 @@ import { Command } from "@cliffy/command";
 import { GitForwarder } from "./core/git-forwarder.ts";
 import { addCommand, initCommand, listCommand, removeCommand } from "./commands/mod.ts";
 import { Logger } from "./utils/logger.ts";
-import { getVersion } from "./utils/paths.ts";
+import deno from "../deno.json" with { type: "json" };
 
 async function main() {
   // Parse arguments to check if it's a claude-sync specific command
@@ -29,13 +29,15 @@ async function main() {
   if (isClaudeSyncCommand) {
     // Route to specific command handler using Cliffy
     try {
-      const version = await getVersion();
       await new Command()
         .name("claude-sync")
-        .version(version)
+        .version(deno.version)
         .description("Git-aware Claude file tracking and synchronization")
         .globalOption("-v, --verbose", "Enable verbose output")
-        .globalOption("--sync-repo <path:string>", "Override sync repository location")
+        .globalOption(
+          "--sync-repo <path:string>",
+          "Override sync repository location",
+        )
         .command("init", initCommand)
         .command("add", addCommand)
         .command("remove", removeCommand)

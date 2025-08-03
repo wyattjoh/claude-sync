@@ -1,6 +1,6 @@
 {
   "name": "@wyattjoh/claude-sync",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "license": "MIT",
   "exports": "./src/main.ts",
   "publish": {
