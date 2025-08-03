@@ -101,8 +101,8 @@ export const addCommand = new Command()
         return;
       }
 
-      // Create symlinks in sync repo pointing to actual files
-      logger.info(`Adding ${filesToAdd.length} file(s) to sync repository...`);
+      // Move files to sync repo and create symlinks in original locations
+      logger.info(`Adding ${filesToAdd.length} file(s) to tracking...`);
       const symlinkManager = new SymlinkManager(logger);
       const syncProjectDir = await syncRepo.getProjectPath(projectName);
       const created = await symlinkManager.createSymlinks(filesToAdd, syncProjectDir);

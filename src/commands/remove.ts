@@ -68,10 +68,10 @@ export const removeCommand = new Command()
           }
         }
 
-        // Remove all symlinks from sync repo
-        logger.info("Removing project symlinks from sync repository...");
+        // Remove all symlinks from project and files from sync repo
+        logger.info("Removing project tracking...");
         const symlinkManager = new SymlinkManager(logger);
-        await symlinkManager.removeSymlinks(projectDir);
+        await symlinkManager.removeSymlinks(projectDir, project);
 
         // Remove project directory
         await syncRepo.removeProjectDir(projectName);
@@ -137,12 +137,34 @@ export const removeCommand = new Command()
           }
         }
 
-        // Remove symlinks from sync repo
+        // Remove specific files from tracking
+        const symlinkManager = new SymlinkManager(logger);
+
         for (const file of filesToRemove) {
-          const linkPath = join(projectDir, file);
+          const syncFilePath = join(projectDir, file);
+          const originalPath = join(project.path, file);
+
           try {
-            await Deno.remove(linkPath);
-            logger.debug(`Removed symlink from sync repo: ${file}`);
+            // Remove symlink from project and restore original file
+            try {
+              const originalStat = await Deno.lstat(originalPath);
+              if (originalStat.isSymlink) {
+                await Deno.remove(originalPath);
+                // Copy file back from sync repo to original location
+                await Deno.copyFile(syncFilePath, originalPath);
+              }
+            } catch {
+              // Symlink doesn't exist in project
+            }
+
+            // Remove file from sync repo
+            try {
+              await Deno.remove(syncFilePath);
+            } catch {
+              // File doesn't exist in sync repo
+            }
+
+            logger.debug(`Removed tracking for: ${file}`);
           } catch (error) {
             logger.warn(
               `Failed to remove ${file}: ${error instanceof Error ? error.message : String(error)}`,
@@ -156,8 +178,7 @@ export const removeCommand = new Command()
         await configManager.updateProject(projectName, project);
 
         // Clean empty directories in sync repo
-        const symlinkManager = new SymlinkManager(logger);
-        await symlinkManager.removeSymlinks(projectDir); // This cleans empty dirs
+        await symlinkManager.cleanEmptyDirs(projectDir);
 
         // Stage changes
         await syncRepo.addFiles(["."]);
