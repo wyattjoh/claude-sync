@@ -1,0 +1,23 @@
+# Build output
+claude-sync
+claude-sync.exe
+dist/
+
+# Test coverage
+coverage/
+.coverage/
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Local testing
+test-repos/
+.claude-sync-test/
