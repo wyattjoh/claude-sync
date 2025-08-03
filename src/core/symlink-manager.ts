@@ -13,16 +13,17 @@ export class SymlinkManager {
 
   async createSymlinks(
     files: ClaudeFile[],
-    projectDir: string,
+    syncProjectDir: string,
   ): Promise<string[]> {
     const createdLinks: string[] = [];
 
     for (const file of files) {
       try {
-        const linkPath = join(projectDir, file.relativePath);
+        // Create symlink in sync repo pointing to actual file in project
+        const linkPath = join(syncProjectDir, file.relativePath);
         const linkDir = dirname(linkPath);
 
-        // Ensure directory exists
+        // Ensure directory exists in sync repo
         await ensureDir(linkDir);
 
         // Remove existing symlink if it exists
@@ -35,11 +36,11 @@ export class SymlinkManager {
           // File doesn't exist, which is fine
         }
 
-        // Create symlink
+        // Create symlink in sync repo pointing to actual file
         await ensureSymlink(file.path, linkPath);
         createdLinks.push(file.relativePath);
 
-        this.logger.debug(`Created symlink: ${file.relativePath}`);
+        this.logger.debug(`Created symlink in sync repo: ${file.relativePath} -> ${file.path}`);
       } catch (error) {
         throw new SymlinkError(
           error instanceof Error ? error.message : String(error),
@@ -51,7 +52,7 @@ export class SymlinkManager {
     return createdLinks;
   }
 
-  async updateSymlinks(project: Project, projectDir: string): Promise<{
+  async updateSymlinks(project: Project, syncProjectDir: string): Promise<{
     added: string[];
     removed: string[];
     updated: string[];
@@ -62,22 +63,22 @@ export class SymlinkManager {
       updated: [] as string[],
     };
 
-    // Get current symlinks
-    const currentLinks = await this.getProjectSymlinks(projectDir);
+    // Get current symlinks in sync repo
+    const currentLinks = await this.getProjectSymlinks(syncProjectDir);
     const trackedSet = new Set(project.trackedFiles);
 
-    // Remove orphaned symlinks
+    // Remove orphaned symlinks from sync repo
     for (const link of currentLinks) {
       if (!trackedSet.has(link.relativePath)) {
         await Deno.remove(link.path);
         result.removed.push(link.relativePath);
-        this.logger.debug(`Removed orphaned symlink: ${link.relativePath}`);
+        this.logger.debug(`Removed orphaned symlink from sync repo: ${link.relativePath}`);
       }
     }
 
-    // Check for broken or outdated symlinks
+    // Check for broken or outdated symlinks in sync repo
     for (const trackedFile of project.trackedFiles) {
-      const linkPath = join(projectDir, trackedFile);
+      const linkPath = join(syncProjectDir, trackedFile);
       const sourcePath = join(project.path, trackedFile);
 
       try {
@@ -85,21 +86,21 @@ export class SymlinkManager {
         if (linkStat.isSymlink) {
           const target = await Deno.readLink(linkPath);
           if (target !== sourcePath) {
-            // Symlink points to wrong location
+            // Symlink points to wrong location, update it
             await Deno.remove(linkPath);
             await ensureSymlink(sourcePath, linkPath);
             result.updated.push(trackedFile);
-            this.logger.debug(`Updated symlink: ${trackedFile}`);
+            this.logger.debug(`Updated symlink in sync repo: ${trackedFile} -> ${sourcePath}`);
           }
         }
       } catch {
-        // Symlink doesn't exist, create it
+        // Symlink doesn't exist in sync repo, create it
         if (await exists(sourcePath)) {
           const linkDir = dirname(linkPath);
           await ensureDir(linkDir);
           await ensureSymlink(sourcePath, linkPath);
           result.added.push(trackedFile);
-          this.logger.debug(`Added symlink: ${trackedFile}`);
+          this.logger.debug(`Added symlink to sync repo: ${trackedFile} -> ${sourcePath}`);
         }
       }
     }
@@ -107,26 +108,26 @@ export class SymlinkManager {
     return result;
   }
 
-  async removeSymlinks(projectDir: string): Promise<string[]> {
+  async removeSymlinks(syncProjectDir: string): Promise<string[]> {
     const removed: string[] = [];
-    const links = await this.getProjectSymlinks(projectDir);
+    const links = await this.getProjectSymlinks(syncProjectDir);
 
     for (const link of links) {
       try {
         await Deno.remove(link.path);
         removed.push(link.relativePath);
-        this.logger.debug(`Removed symlink: ${link.relativePath}`);
+        this.logger.debug(`Removed symlink from sync repo: ${link.relativePath}`);
       } catch (error) {
         this.logger.warn(
-          `Failed to remove symlink ${link.relativePath}: ${
+          `Failed to remove symlink from sync repo ${link.relativePath}: ${
             error instanceof Error ? error.message : String(error)
           }`,
         );
       }
     }
 
-    // Clean up empty directories
-    await this.cleanEmptyDirs(projectDir);
+    // Clean up empty directories in sync repo
+    await this.cleanEmptyDirs(syncProjectDir);
 
     return removed;
   }

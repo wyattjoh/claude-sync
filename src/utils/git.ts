@@ -82,8 +82,9 @@ export async function initGitRepo(path: string): Promise<void> {
   await runGitCommand(["init", "--initial-branch=main"], { cwd: path });
 }
 
-export async function gitAdd(path: string, files: string[]): Promise<void> {
-  await runGitCommand(["add", ...files], { cwd: path });
+export async function gitAdd(path: string, files: string[], force = false): Promise<void> {
+  const args = force ? ["add", "-f", ...files] : ["add", ...files];
+  await runGitCommand(args, { cwd: path });
 }
 
 export async function gitCommit(path: string, message: string): Promise<void> {

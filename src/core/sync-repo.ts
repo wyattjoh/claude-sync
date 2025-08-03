@@ -52,7 +52,7 @@ export class SyncRepository {
         await ensureDir(join(this.path, "projects"));
 
         // Initial commit
-        await gitAdd(this.path, ["."]);
+        await gitAdd(this.path, ["."], true);
         await gitCommit(this.path, "chore: initialize claude-sync repository");
       }
 
@@ -99,10 +99,10 @@ export class SyncRepository {
     return status.trim().length > 0;
   }
 
-  async addFiles(files: string[]): Promise<void> {
+  async addFiles(files: string[], force = true): Promise<void> {
     if (files.length === 0) return;
 
-    await gitAdd(this.path, files);
+    await gitAdd(this.path, files, force);
     this.logger.debug(`Added ${files.length} files to git`);
   }
 

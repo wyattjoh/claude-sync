@@ -68,8 +68,8 @@ export const removeCommand = new Command()
           }
         }
 
-        // Remove all symlinks
-        logger.info("Removing project symlinks...");
+        // Remove all symlinks from sync repo
+        logger.info("Removing project symlinks from sync repository...");
         const symlinkManager = new SymlinkManager(logger);
         await symlinkManager.removeSymlinks(projectDir);
 
@@ -137,12 +137,12 @@ export const removeCommand = new Command()
           }
         }
 
-        // Remove symlinks
+        // Remove symlinks from sync repo
         for (const file of filesToRemove) {
           const linkPath = join(projectDir, file);
           try {
             await Deno.remove(linkPath);
-            logger.debug(`Removed symlink: ${file}`);
+            logger.debug(`Removed symlink from sync repo: ${file}`);
           } catch (error) {
             logger.warn(
               `Failed to remove ${file}: ${error instanceof Error ? error.message : String(error)}`,
@@ -155,7 +155,7 @@ export const removeCommand = new Command()
         project.metadata.lastModified = new Date();
         await configManager.updateProject(projectName, project);
 
-        // Clean empty directories
+        // Clean empty directories in sync repo
         const symlinkManager = new SymlinkManager(logger);
         await symlinkManager.removeSymlinks(projectDir); // This cleans empty dirs
 

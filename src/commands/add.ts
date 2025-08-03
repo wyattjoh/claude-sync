@@ -101,11 +101,11 @@ export const addCommand = new Command()
         return;
       }
 
-      // Create symlinks
-      logger.info(`Adding ${filesToAdd.length} file(s)...`);
+      // Create symlinks in sync repo pointing to actual files
+      logger.info(`Adding ${filesToAdd.length} file(s) to sync repository...`);
       const symlinkManager = new SymlinkManager(logger);
-      const projectDir = await syncRepo.getProjectPath(projectName);
-      const created = await symlinkManager.createSymlinks(filesToAdd, projectDir);
+      const syncProjectDir = await syncRepo.getProjectPath(projectName);
+      const created = await symlinkManager.createSymlinks(filesToAdd, syncProjectDir);
 
       // Update project
       project.trackedFiles.push(...created);
@@ -113,7 +113,9 @@ export const addCommand = new Command()
       await configManager.updateProject(projectName, project);
 
       // Stage changes in sync repo
-      const relativePaths = created.map((f) => relative(syncRepo.repoPath, projectDir + "/" + f));
+      const relativePaths = created.map((f) =>
+        relative(syncRepo.repoPath, syncProjectDir + "/" + f)
+      );
       await syncRepo.addFiles(relativePaths);
 
       // Show added files

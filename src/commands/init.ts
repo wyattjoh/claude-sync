@@ -93,12 +93,12 @@ export const initCommand = new Command()
       // Save project
       await configManager.addProject(projectName, project);
 
-      // Create symlinks
+      // Create symlinks in sync repo pointing to actual files
       if (files.length > 0) {
-        logger.info("Creating symlinks...");
+        logger.info("Creating symlinks in sync repository...");
         const symlinkManager = new SymlinkManager(logger);
-        const projectDir = await syncRepo.ensureProjectDir(projectName);
-        await symlinkManager.createSymlinks(files, projectDir);
+        const syncProjectDir = await syncRepo.ensureProjectDir(projectName);
+        await symlinkManager.createSymlinks(files, syncProjectDir);
       }
 
       // Commit if there are changes
