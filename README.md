@@ -93,7 +93,7 @@ deno run --allow-read --allow-write --allow-env --allow-run \
 All standard git commands work and are automatically scoped to your tracked files:
 
 - `claude-sync status` - Show status of tracked files
-- `claude-sync diff` - Show changes to tracked files  
+- `claude-sync diff` - Show changes to tracked files
 - `claude-sync commit -m "message"` - Commit tracked file changes
 - `claude-sync push` - Push to sync repository
 - `claude-sync pull` - Pull latest changes
@@ -228,6 +228,7 @@ excludePatterns:
 ## Troubleshooting
 
 ### Not in a git repository
+
 ```bash
 # Error: Not in a git repository
 # Solution: Navigate to a git repository or initialize one
@@ -236,6 +237,7 @@ claude-sync init
 ```
 
 ### Sync repository not initialized
+
 ```bash
 # Error: Sync repository not initialized
 # Solution: Run init in any git repository
@@ -243,6 +245,7 @@ claude-sync init
 ```
 
 ### Project not found
+
 ```bash
 # Error: Project not found
 # Solution: Initialize the current project
@@ -250,6 +253,7 @@ claude-sync init
 ```
 
 ### Broken symlinks
+
 ```bash
 # Check for issues
 claude-sync list --long

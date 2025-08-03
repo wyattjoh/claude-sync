@@ -35,7 +35,7 @@ export const removeCommand = new Command()
       // Find project in registry
       const configManager = new ConfigManager(syncRepo.repoPath);
       const projects = await configManager.loadProjects();
-      
+
       let projectName: string | undefined;
       let project = null;
 
@@ -61,7 +61,7 @@ export const removeCommand = new Command()
             message: `Remove project ${bold(projectName)} and all tracked files?`,
             default: false,
           });
-          
+
           if (!confirmed) {
             logger.info("Removal cancelled");
             return;
@@ -83,7 +83,7 @@ export const removeCommand = new Command()
         await syncRepo.addFiles(["."]);
 
         logger.success(`Removed project: ${bold(projectName)}`);
-        
+
         if (await syncRepo.hasChanges()) {
           logger.info("");
           logger.info("Run 'claude-sync commit' to save changes");
@@ -130,7 +130,7 @@ export const removeCommand = new Command()
             message: `Remove ${filesToRemove.length} file(s)?`,
             default: true,
           });
-          
+
           if (!confirmed) {
             logger.info("Removal cancelled");
             return;
@@ -144,12 +144,14 @@ export const removeCommand = new Command()
             await Deno.remove(linkPath);
             logger.debug(`Removed symlink: ${file}`);
           } catch (error) {
-            logger.warn(`Failed to remove ${file}: ${error instanceof Error ? error.message : String(error)}`);
+            logger.warn(
+              `Failed to remove ${file}: ${error instanceof Error ? error.message : String(error)}`,
+            );
           }
         }
 
         // Update project
-        project.trackedFiles = project.trackedFiles.filter(f => !filesToRemove.includes(f));
+        project.trackedFiles = project.trackedFiles.filter((f) => !filesToRemove.includes(f));
         project.metadata.lastModified = new Date();
         await configManager.updateProject(projectName, project);
 
@@ -161,7 +163,7 @@ export const removeCommand = new Command()
         await syncRepo.addFiles(["."]);
 
         logger.success(`Removed ${filesToRemove.length} file(s)`);
-        
+
         if (await syncRepo.hasChanges()) {
           logger.info("");
           logger.info("Run 'claude-sync commit' to save changes");

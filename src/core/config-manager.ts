@@ -43,7 +43,7 @@ export class ConfigManager {
     try {
       const content = await Deno.readTextFile(configPath);
       const config = parse(content) as SyncConfig;
-      
+
       // Validate config
       if (!config.version || typeof config.version !== "number") {
         throw new ConfigError("Invalid config version");
@@ -54,7 +54,9 @@ export class ConfigManager {
       if (error instanceof ConfigError) {
         throw error;
       }
-      throw new ConfigError(`Failed to load config: ${error instanceof Error ? error.message : String(error)}`);
+      throw new ConfigError(
+        `Failed to load config: ${error instanceof Error ? error.message : String(error)}`,
+      );
     }
   }
 
@@ -64,14 +66,16 @@ export class ConfigManager {
 
     try {
       await ensureDir(configDir);
-      
+
       // Remove syncRepoPath from saved config as it's determined by location
       const { syncRepoPath, ...configToSave } = config;
       const yaml = stringify(configToSave, { indent: 2 });
-      
+
       await Deno.writeTextFile(configPath, yaml);
     } catch (error) {
-      throw new ConfigError(`Failed to save config: ${error instanceof Error ? error.message : String(error)}`);
+      throw new ConfigError(
+        `Failed to save config: ${error instanceof Error ? error.message : String(error)}`,
+      );
     }
   }
 
@@ -85,10 +89,10 @@ export class ConfigManager {
     try {
       const content = await Deno.readTextFile(projectsPath);
       const data = parse(content) as any;
-      
+
       // Convert date strings back to Date objects
       const projects: Record<string, Project> = {};
-      
+
       for (const [name, project] of Object.entries(data.projects || {})) {
         const p = project as any;
         projects[name] = {
@@ -103,7 +107,9 @@ export class ConfigManager {
 
       return { projects };
     } catch (error) {
-      throw new ConfigError(`Failed to load projects: ${error instanceof Error ? error.message : String(error)}`);
+      throw new ConfigError(
+        `Failed to load projects: ${error instanceof Error ? error.message : String(error)}`,
+      );
     }
   }
 
@@ -113,10 +119,10 @@ export class ConfigManager {
 
     try {
       await ensureDir(projectsDir);
-      
+
       // Convert dates to ISO strings for YAML serialization
       const projectsToSave: Record<string, any> = {};
-      
+
       for (const [name, project] of Object.entries(registry.projects)) {
         projectsToSave[name] = {
           ...project,
@@ -131,7 +137,9 @@ export class ConfigManager {
       const yaml = stringify({ projects: projectsToSave }, { indent: 2 });
       await Deno.writeTextFile(projectsPath, yaml);
     } catch (error) {
-      throw new ConfigError(`Failed to save projects: ${error instanceof Error ? error.message : String(error)}`);
+      throw new ConfigError(
+        `Failed to save projects: ${error instanceof Error ? error.message : String(error)}`,
+      );
     }
   }
 
@@ -149,7 +157,7 @@ export class ConfigManager {
   async updateProject(name: string, project: Partial<Project>): Promise<void> {
     const registry = await this.loadProjects();
     const existing = registry.projects[name];
-    
+
     if (!existing) {
       throw new ConfigError(`Project not found: ${name}`);
     }

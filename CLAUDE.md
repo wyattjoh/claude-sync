@@ -9,6 +9,7 @@ Claude-sync is a git-aware CLI tool that tracks and version controls Claude conf
 ## Development Commands
 
 ### Build and Run
+
 ```bash
 deno task dev      # Run with file watching and hot reload
 deno task build    # Compile to standalone executable
@@ -16,6 +17,7 @@ deno task check    # Type check all TypeScript files
 ```
 
 ### Testing and Code Quality
+
 ```bash
 deno task test     # Run all tests
 deno task lint     # Lint code
@@ -23,6 +25,7 @@ deno task fmt      # Format code
 ```
 
 ### Manual Testing
+
 ```bash
 # Test the built CLI
 ./claude-sync --help
@@ -33,6 +36,7 @@ deno task fmt      # Format code
 ## Core Architecture
 
 ### Command Routing Strategy
+
 The entry point (`src/main.ts`) implements a dual-routing system:
 
 1. **Claude-sync commands** (`init`, `add`, `remove`, `list`) are handled by Cliffy command framework
@@ -41,31 +45,37 @@ The entry point (`src/main.ts`) implements a dual-routing system:
 ### Key Architectural Components
 
 **GitForwarder** (`src/core/git-forwarder.ts`):
+
 - Routes git commands to sync repository with project-specific path filtering
 - Detects current project context and applies appropriate scoping
 - Handles commands like `status`, `diff`, `commit` with intelligent path translation
 
 **SyncRepository** (`src/core/sync-repo.ts`):
+
 - Manages the centralized `~/.claude-sync` repository
 - Handles git operations (init, commit, push, branch management)
 - Provides project directory management within sync repo
 
 **ProjectDetector** (`src/core/project-detector.ts`):
+
 - Detects git repositories and extracts project metadata
 - Maps current working directory to tracked projects
 - Generates project names from git remotes or directory names
 
 **FileScanner** (`src/core/file-scanner.ts`):
+
 - Discovers Claude files using configurable glob patterns
 - Respects .gitignore and exclusion patterns
 - Supports exact files and wildcard patterns
 
 **SymlinkManager** (`src/core/symlink-manager.ts`):
+
 - Creates and maintains symlinks between original files and sync repository
 - Handles conflict resolution and broken link cleanup
 - Ensures proper directory structure mirroring
 
 **ConfigManager** (`src/core/config-manager.ts`):
+
 - Manages YAML configuration files and project registry
 - Handles serialization of projects with metadata (dates, paths, tracking info)
 - Provides CRUD operations for project management
@@ -80,12 +90,14 @@ The entry point (`src/main.ts`) implements a dual-routing system:
 ### File Patterns
 
 Default tracked patterns (configurable):
+
 - `CLAUDE.local.md` - Local project instructions
-- `.claude/settings.local.json` - Local Claude settings  
+- `.claude/settings.local.json` - Local Claude settings
 - `.claude/commands/*.md` - Custom command definitions
 - `.claude/agents/*.md` - Custom agent configurations
 
 ### Sync Repository Structure
+
 ```
 ~/.claude-sync/
 ├── config/
@@ -106,16 +118,19 @@ Default tracked patterns (configurable):
 ## Development Notes
 
 ### TypeScript Configuration
+
 - Strict type checking enabled
 - All error handling uses `error instanceof Error` type guards
 - Custom types defined in `src/types/index.ts`
 
 ### Dependencies
+
 - **Cliffy**: CLI framework for commands, prompts, and table display
 - **Deno Standard Library**: File operations, path handling, YAML parsing
 - Uses Deno's built-in `Command` API for git subprocess execution
 
 ### Testing Strategy
+
 - Unit tests for utility functions in `tests/utils/`
 - Core business logic should be tested in isolation
 - Use Deno's built-in test runner with appropriate permissions

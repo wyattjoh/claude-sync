@@ -9,10 +9,21 @@ const VERSION = "0.1.0";
 async function main() {
   // Parse arguments to check if it's a claude-sync specific command
   const args = Deno.args;
-  
+
   // Claude-sync specific commands
-  const claudeSyncCommands = ["init", "add", "remove", "list", "config", "help", "--help", "-h", "--version", "-V"];
-  
+  const claudeSyncCommands = [
+    "init",
+    "add",
+    "remove",
+    "list",
+    "config",
+    "help",
+    "--help",
+    "-h",
+    "--version",
+    "-V",
+  ];
+
   // Check if first arg is a claude-sync command
   const isClaudeSyncCommand = args.length === 0 || claudeSyncCommands.includes(args[0]);
 
@@ -26,7 +37,7 @@ async function main() {
         .globalOption("-v, --verbose", "Enable verbose output")
         .globalOption("--sync-repo <path:string>", "Override sync repository location")
         .command("init", initCommand)
-        .command("add", addCommand) 
+        .command("add", addCommand)
         .command("remove", removeCommand)
         .command("list", listCommand)
         .help({
@@ -44,16 +55,16 @@ async function main() {
     try {
       const logger = new Logger();
       const forwarder = new GitForwarder(undefined, logger);
-      
+
       // Ensure sync repo exists first
       await forwarder.ensureSyncRepo();
-      
+
       // Forward command to git
       await forwarder.forward(args);
     } catch (error) {
       const logger = new Logger();
       const errorMessage = error instanceof Error ? error.message : String(error);
-      
+
       if (errorMessage.includes("not initialized")) {
         logger.error("Sync repository not initialized");
         logger.info("Run 'claude-sync init' first");
@@ -63,7 +74,7 @@ async function main() {
       } else {
         logger.error(`Git command failed: ${errorMessage}`);
       }
-      
+
       Deno.exit(1);
     }
   }

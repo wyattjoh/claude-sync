@@ -32,7 +32,7 @@ export const initCommand = new Command()
 
       // Determine project name
       let projectName = projectNameArg || suggestedName;
-      
+
       if (!options.yes && !projectNameArg) {
         projectName = await Input.prompt({
           message: "Project name:",
@@ -53,13 +53,13 @@ export const initCommand = new Command()
 
       if (files.length === 0) {
         logger.warn("No Claude files found in project");
-        
+
         if (!options.yes) {
           const proceed = await Confirm.prompt({
             message: "No Claude files found. Continue anyway?",
             default: true,
           });
-          
+
           if (!proceed) {
             logger.info("Initialization cancelled");
             return;
@@ -79,7 +79,7 @@ export const initCommand = new Command()
         gitRemote: gitInfo.remote,
         branch: gitInfo.branch,
         autoTrack: true,
-        trackedFiles: files.map(f => f.relativePath),
+        trackedFiles: files.map((f) => f.relativePath),
         metadata: {
           addedAt: new Date(),
           lastSync: new Date(),
@@ -118,7 +118,9 @@ export const initCommand = new Command()
         logger.error(error.message);
         logger.info("Use a different name or remove the existing project first");
       } else {
-        logger.error(`Failed to initialize: ${error instanceof Error ? error.message : String(error)}`);
+        logger.error(
+          `Failed to initialize: ${error instanceof Error ? error.message : String(error)}`,
+        );
       }
       Deno.exit(1);
     }

@@ -7,8 +7,9 @@ Claude-sync is a git-aware CLI tool that tracks and version controls Claude-rela
 ## Core Architecture
 
 ### Design Principles
+
 - **Git-native**: Feel like a natural extension of git
-- **Zero-config**: Work immediately in any git repository  
+- **Zero-config**: Work immediately in any git repository
 - **Non-invasive**: Never modify original project files
 - **Smart forwarding**: Intelligently route commands to appropriate git repos
 
@@ -81,6 +82,7 @@ claude-sync/
 ## Configuration Schema
 
 ### Sync Repository Configuration
+
 Location: `~/.claude-sync/config/claude-sync.yaml`
 
 ```yaml
@@ -89,7 +91,7 @@ version: 1
 sync_repo_path: ~/.claude-sync
 default_branch: main
 auto_commit: true
-commit_style: conventional  # conventional, simple
+commit_style: conventional # conventional, simple
 file_patterns:
   - CLAUDE.local.md
   - .claude/settings.local.json
@@ -107,6 +109,7 @@ git_config:
 ```
 
 ### Project Registry
+
 Location: `~/.claude-sync/config/projects.yaml`
 
 ```yaml
@@ -129,6 +132,7 @@ projects:
 ```
 
 ### Sync Repository Structure
+
 Location: `~/.claude-sync/` (default)
 
 ```
@@ -159,14 +163,14 @@ Location: `~/.claude-sync/` (default)
 // ✅ COMPLETED: Implement main command router
 import { Command } from "cliffy/command";
 import { GitForwarder } from "./core/git-forwarder.ts";
-import { initCommand, addCommand, removeCommand, listCommand } from "./commands/mod.ts";
+import { addCommand, initCommand, listCommand, removeCommand } from "./commands/mod.ts";
 
 const VERSION = "0.1.0";
 
 async function main() {
   // Check if command is claude-sync specific
   const claudeSyncCommands = ["init", "add", "remove", "list", "config", "improve"];
-  
+
   if (claudeSyncCommands.includes(Deno.args[0])) {
     // Route to specific command handler
     await new Command()
@@ -278,6 +282,7 @@ export class SymlinkManager {
 ## Command Implementations
 
 ### `init` Command
+
 ```typescript
 // TODO: Implement init command
 // 1. Detect git repository
@@ -288,6 +293,7 @@ export class SymlinkManager {
 ```
 
 ### `add` Command
+
 ```typescript
 // TODO: Implement add command
 // 1. Parse file arguments or scan for all
@@ -298,6 +304,7 @@ export class SymlinkManager {
 ```
 
 ### `remove` Command
+
 ```typescript
 // TODO: Implement remove command
 // 1. Parse file/project arguments
@@ -307,6 +314,7 @@ export class SymlinkManager {
 ```
 
 ### `list` Command
+
 ```typescript
 // TODO: Implement list command
 // 1. Load project registry
@@ -318,6 +326,7 @@ export class SymlinkManager {
 ## Error Handling
 
 ### Custom Error Types
+
 ```typescript
 // TODO: Define error types
 export class ClaudeSyncError extends Error {}
@@ -328,6 +337,7 @@ export class ConfigError extends ClaudeSyncError {}
 ```
 
 ### Error Messages
+
 - TODO: Create user-friendly error messages
 - TODO: Provide helpful suggestions for resolution
 - TODO: Include relevant context and paths
@@ -335,16 +345,19 @@ export class ConfigError extends ClaudeSyncError {}
 ## Testing Strategy
 
 ### Unit Tests
+
 - TODO: Test each core module in isolation
 - TODO: Mock file system and git operations
 - TODO: Test error conditions
 
 ### Integration Tests
+
 - TODO: Test command workflows
 - TODO: Test git forwarding
 - TODO: Test symlink operations
 
 ### E2E Tests
+
 - TODO: Test full user workflows
 - TODO: Test in different environments
 - TODO: Test edge cases
@@ -352,6 +365,7 @@ export class ConfigError extends ClaudeSyncError {}
 ## Build and Distribution
 
 ### Development Setup
+
 ```bash
 # TODO: Create development scripts
 deno task dev      # Run with --watch
@@ -361,6 +375,7 @@ deno task fmt      # Format code
 ```
 
 ### Build Process
+
 ```bash
 # TODO: Create build script
 deno task build    # Compile to single executable
@@ -368,6 +383,7 @@ deno task package  # Create distribution packages
 ```
 
 ### Installation Methods
+
 - TODO: Direct binary download
 - TODO: Install script (curl | sh)
 - TODO: Package managers (homebrew, etc.)
@@ -375,24 +391,28 @@ deno task package  # Create distribution packages
 ## Future Enhancements
 
 ### Phase 1: Core Functionality (Current)
+
 - [ ] Basic command structure
 - [ ] Git forwarding
 - [ ] File discovery and symlinking
 - [ ] Project management
 
 ### Phase 2: Enhanced Git Integration
+
 - [ ] Branch-aware operations
 - [ ] Conflict resolution
 - [ ] Stash support
 - [ ] Cherry-pick improvements
 
 ### Phase 3: AI-Powered Features
+
 - [ ] Command/agent improvement suggestions
 - [ ] Cross-project pattern analysis
 - [ ] Automated optimization
 - [ ] Interactive improvement mode
 
 ### Phase 4: Collaboration Features
+
 - [ ] Multi-user sync repositories
 - [ ] Shared configurations
 - [ ] Team templates
@@ -433,6 +453,7 @@ deno task package  # Create distribution packages
 ## Implementation Status
 
 ### ✅ Completed (Phase 1)
+
 - **Project Structure**: Complete project setup with proper TypeScript configuration
 - **Core Business Logic**: All core modules implemented and working
   - Project detection and git integration ✅
@@ -453,6 +474,7 @@ deno task package  # Create distribution packages
 - **Build System**: Working Deno compilation to standalone executable ✅
 
 ### 🚧 Ready for Enhancement (Phase 2+)
+
 - **Configuration Command**: `claude-sync config` for managing settings
 - **AI Improvements**: `claude-sync improve` for Claude file optimization
 - **Advanced Git Integration**: Branch-aware operations, conflict resolution

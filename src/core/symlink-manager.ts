@@ -39,10 +39,13 @@ export class SymlinkManager {
         // Create symlink
         await ensureSymlink(file.path, linkPath);
         createdLinks.push(file.relativePath);
-        
+
         this.logger.debug(`Created symlink: ${file.relativePath}`);
       } catch (error) {
-        throw new SymlinkError(error instanceof Error ? error.message : String(error), file.relativePath);
+        throw new SymlinkError(
+          error instanceof Error ? error.message : String(error),
+          file.relativePath,
+        );
       }
     }
 
@@ -115,7 +118,11 @@ export class SymlinkManager {
         removed.push(link.relativePath);
         this.logger.debug(`Removed symlink: ${link.relativePath}`);
       } catch (error) {
-        this.logger.warn(`Failed to remove symlink ${link.relativePath}: ${error instanceof Error ? error.message : String(error)}`);
+        this.logger.warn(
+          `Failed to remove symlink ${link.relativePath}: ${
+            error instanceof Error ? error.message : String(error)
+          }`,
+        );
       }
     }
 
@@ -135,7 +142,7 @@ export class SymlinkManager {
       try {
         for await (const entry of Deno.readDir(dir)) {
           const fullPath = join(dir, entry.name);
-          
+
           if (entry.isSymlink) {
             symlinks.push({
               path: fullPath,

@@ -31,7 +31,7 @@ export function getRelativePath(from: string, to: string): string {
 
 export function findUpward(startPath: string, target: string): string | undefined {
   let currentPath = normalizePath(startPath);
-  
+
   while (currentPath !== "/") {
     const targetPath = join(currentPath, target);
     if (existsSync(targetPath)) {
@@ -41,7 +41,7 @@ export function findUpward(startPath: string, target: string): string | undefine
     if (parent === currentPath) break;
     currentPath = parent;
   }
-  
+
   return undefined;
 }
 

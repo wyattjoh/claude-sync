@@ -98,7 +98,7 @@ export function extractRepoName(gitRemote: string | undefined, projectPath: stri
       return match[1];
     }
   }
-  
+
   // Fall back to directory name
   const parts = projectPath.split("/");
   return parts[parts.length - 1] || "unnamed";

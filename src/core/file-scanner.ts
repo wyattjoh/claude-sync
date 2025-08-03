@@ -32,7 +32,7 @@ export class FileScanner {
 
     // Also check for exact file matches
     const exactFiles = this.filePatterns.filter((p) => !p.includes("*"));
-    
+
     for (const exactFile of exactFiles) {
       const fullPath = join(rootPath, exactFile);
       try {
@@ -52,25 +52,27 @@ export class FileScanner {
     }
 
     // Walk directory for pattern matches
-    for await (const entry of walk(rootPath, {
-      includeDirs: false,
-      includeFiles: true,
-    })) {
+    for await (
+      const entry of walk(rootPath, {
+        includeDirs: false,
+        includeFiles: true,
+      })
+    ) {
       const relativePath = relative(rootPath, entry.path);
-      
+
       // Check if path should be excluded
-      const shouldExclude = excludeRegexps.some((regex) => 
-        regex.test(relativePath) || relativePath.split("/").some(part => regex.test(part))
+      const shouldExclude = excludeRegexps.some((regex) =>
+        regex.test(relativePath) || relativePath.split("/").some((part) => regex.test(part))
       );
-      
+
       if (shouldExclude) {
         continue;
       }
 
       // Check if path matches any include pattern
       const shouldInclude = includeRegexps.some((regex) => regex.test(relativePath));
-      
-      if (shouldInclude && !files.some(f => f.path === entry.path)) {
+
+      if (shouldInclude && !files.some((f) => f.path === entry.path)) {
         const stat = await Deno.stat(entry.path);
         files.push({
           path: entry.path,
@@ -107,6 +109,6 @@ export class FileScanner {
   isClaudeFile(relativePath: string): boolean {
     const includeRegexps = this.filePatterns.map((pattern) => globToRegExp(pattern));
     return includeRegexps.some((regex) => regex.test(relativePath)) ||
-           this.filePatterns.includes(relativePath);
+      this.filePatterns.includes(relativePath);
   }
 }

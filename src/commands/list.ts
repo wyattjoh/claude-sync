@@ -54,12 +54,12 @@ export const listCommand = new Command()
         for (const [name, project] of projects) {
           const projectExists = await exists(project.path);
           const status = projectExists ? green("✓") : red("✗");
-          
+
           console.log(`${status} ${bold(name)}`);
           console.log(`  Path: ${dim(project.path)}`);
           console.log(`  Files: ${project.trackedFiles.length} tracked`);
           console.log(`  Last sync: ${project.metadata.lastSync.toLocaleString()}`);
-          
+
           if (project.gitRemote) {
             console.log(`  Remote: ${dim(project.gitRemote)}`);
           }
@@ -71,11 +71,11 @@ export const listCommand = new Command()
           // Check for broken symlinks
           const projectDir = await syncRepo.getProjectPath(name);
           let brokenLinks = 0;
-          
+
           for (const file of project.trackedFiles) {
             const linkPath = join(projectDir, file);
             const sourcePath = join(project.path, file);
-            
+
             if (!await exists(linkPath) || !await exists(sourcePath)) {
               brokenLinks++;
             }
@@ -95,17 +95,17 @@ export const listCommand = new Command()
             await Promise.all(projects.map(async ([name, project]) => {
               const projectExists = await exists(project.path);
               const status = projectExists ? green("active") : red("missing");
-              
+
               return [
                 name,
                 dim(project.path),
                 project.trackedFiles.length.toString(),
                 status,
               ];
-            }))
+            })),
           )
           .indent(2);
-        
+
         table.render();
       }
 
@@ -114,7 +114,9 @@ export const listCommand = new Command()
       console.log();
       console.log(dim(`${projects.length} project(s), ${totalFiles} file(s) tracked`));
     } catch (error) {
-      logger.error(`Failed to list projects: ${error instanceof Error ? error.message : String(error)}`);
+      logger.error(
+        `Failed to list projects: ${error instanceof Error ? error.message : String(error)}`,
+      );
       Deno.exit(1);
     }
   });

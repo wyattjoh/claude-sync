@@ -15,7 +15,7 @@ export class ProjectDetector {
     if (gitRoot) {
       return normalizePath(gitRoot);
     }
-    
+
     // Fallback to manual search
     return findUpward(startPath, ".git");
   }
@@ -29,7 +29,7 @@ export class ProjectDetector {
   async getGitInfo(path: string): Promise<GitInfo> {
     const normalizedPath = normalizePath(path);
     const isRepo = await isGitRepository(normalizedPath);
-    
+
     if (!isRepo) {
       throw new GitNotFoundError(normalizedPath);
     }

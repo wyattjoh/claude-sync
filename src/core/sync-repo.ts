@@ -30,7 +30,7 @@ export class SyncRepository {
       if (!await isGitRepository(this.path)) {
         this.logger.info(`Initializing sync repository at ${this.path}`);
         await initGitRepo(this.path);
-        
+
         // Create initial .gitignore
         const gitignorePath = join(this.path, ".gitignore");
         const gitignoreContent = [
@@ -59,7 +59,11 @@ export class SyncRepository {
 
       this.logger.success("Sync repository ready");
     } catch (error) {
-      throw new SyncRepoError(`Failed to initialize sync repository: ${error instanceof Error ? error.message : String(error)}`);
+      throw new SyncRepoError(
+        `Failed to initialize sync repository: ${
+          error instanceof Error ? error.message : String(error)
+        }`,
+      );
     }
   }
 
@@ -79,7 +83,7 @@ export class SyncRepository {
 
   async addFiles(files: string[]): Promise<void> {
     if (files.length === 0) return;
-    
+
     await gitAdd(this.path, files);
     this.logger.debug(`Added ${files.length} files to git`);
   }
@@ -132,7 +136,7 @@ export class SyncRepository {
     const currentBranch = branch || await this.getCurrentBranch();
     const result = await runGitCommand(
       ["push", remote, currentBranch],
-      { cwd: this.path, throwOnError: false }
+      { cwd: this.path, throwOnError: false },
     );
 
     if (!result.success) {
@@ -140,7 +144,7 @@ export class SyncRepository {
         // Set upstream and push
         await runGitCommand(
           ["push", "--set-upstream", remote, currentBranch],
-          { cwd: this.path }
+          { cwd: this.path },
         );
         this.logger.success(`Pushed and set upstream to ${remote}/${currentBranch}`);
       } else {
@@ -160,14 +164,14 @@ export class SyncRepository {
   async getRemoteUrl(): Promise<string | undefined> {
     const result = await runGitCommand(
       ["remote", "get-url", "origin"],
-      { cwd: this.path, throwOnError: false }
+      { cwd: this.path, throwOnError: false },
     );
     return result.success ? result.stdout.trim() : undefined;
   }
 
   async setRemote(url: string, name = "origin"): Promise<void> {
     const existingUrl = await this.getRemoteUrl();
-    
+
     if (existingUrl) {
       await runGitCommand(["remote", "set-url", name, url], { cwd: this.path });
       this.logger.info(`Updated remote ${name} to ${url}`);

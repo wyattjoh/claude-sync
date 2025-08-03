@@ -35,7 +35,7 @@ export const addCommand = new Command()
       // Find project in registry
       const configManager = new ConfigManager(syncRepo.repoPath);
       const projects = await configManager.loadProjects();
-      
+
       let projectName: string | undefined;
       let project = null;
 
@@ -60,11 +60,11 @@ export const addCommand = new Command()
         // Scan for all Claude files
         logger.info("Scanning for Claude files...");
         const scannedFiles = await scanner.scan(gitInfo.root);
-        
+
         // Filter out already tracked files
         const trackedSet = new Set(project.trackedFiles);
-        const newFiles = scannedFiles.filter(f => !trackedSet.has(f.relativePath));
-        
+        const newFiles = scannedFiles.filter((f) => !trackedSet.has(f.relativePath));
+
         if (newFiles.length === 0) {
           logger.info("No new Claude files found");
           return;
@@ -113,7 +113,7 @@ export const addCommand = new Command()
       await configManager.updateProject(projectName, project);
 
       // Stage changes in sync repo
-      const relativePaths = created.map(f => relative(syncRepo.repoPath, projectDir + "/" + f));
+      const relativePaths = created.map((f) => relative(syncRepo.repoPath, projectDir + "/" + f));
       await syncRepo.addFiles(relativePaths);
 
       // Show added files
@@ -133,7 +133,9 @@ export const addCommand = new Command()
       } else if (error instanceof ProjectNotFoundError) {
         logger.error("Project not found. Run 'claude-sync init' first");
       } else {
-        logger.error(`Failed to add files: ${error instanceof Error ? error.message : String(error)}`);
+        logger.error(
+          `Failed to add files: ${error instanceof Error ? error.message : String(error)}`,
+        );
       }
       Deno.exit(1);
     }

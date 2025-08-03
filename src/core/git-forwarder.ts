@@ -128,7 +128,7 @@ export class GitForwarder {
         if (projectScopedCommands.includes(command) && currentProject) {
           // Add path filter for current project
           const projectPath = join("projects", currentProject);
-          
+
           // Check if user already specified paths
           const hasDoubleDash = originalArgs.includes("--");
           const hasPathArgs = originalArgs.length > 1 && !originalArgs[1].startsWith("-");
