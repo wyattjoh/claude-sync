@@ -99,18 +99,18 @@ export class SyncRepository {
     this.logger.success(`Committed: ${message}`);
   }
 
-  async getProjectPath(projectName: string): Promise<string> {
+  getProjectPath(projectName: string): string {
     return join(this.path, "projects", projectName);
   }
 
   async ensureProjectDir(projectName: string): Promise<string> {
-    const projectPath = await this.getProjectPath(projectName);
+    const projectPath = this.getProjectPath(projectName);
     await ensureDir(projectPath);
     return projectPath;
   }
 
   async removeProjectDir(projectName: string): Promise<void> {
-    const projectPath = await this.getProjectPath(projectName);
+    const projectPath = this.getProjectPath(projectName);
     if (await exists(projectPath)) {
       await Deno.remove(projectPath, { recursive: true });
       this.logger.debug(`Removed project directory: ${projectName}`);

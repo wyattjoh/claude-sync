@@ -19,7 +19,6 @@ export const initCommand = new Command()
   .option("--sync-repo <path:string>", "Override sync repository location")
   .action(async (options, projectNameArg?: string) => {
     const logger = new Logger();
-    const workDir = options.directory || Deno.cwd();
 
     try {
       // Initialize sync repository

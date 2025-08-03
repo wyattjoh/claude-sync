@@ -137,4 +137,6 @@ Default tracked patterns (configurable):
 
 ## Workflow Guidelines
 
-- Remember to always format using `deno fmt` and resolve any formatting issues after you're finished creating or updating files.
+- Remember to always format using `deno task fmt` and resolve any formatting issues after you're finished creating or updating files.
+- Remember to always lint using `deno task lint` and resolve any linting errors (automatically if possible) after you're finished creating or updating files.
+- Remember to always lint using `deno task check` and resolve any type errors (automatically if possible) after you're finished creating or updating files.

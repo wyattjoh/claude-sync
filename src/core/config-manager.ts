@@ -2,6 +2,39 @@ import { ensureDir, exists } from "@std/fs";
 import { dirname } from "@std/path";
 import { parse, stringify } from "@std/yaml";
 import { Project, ProjectRegistry, SyncConfig } from "../types/index.ts";
+
+interface RawProject {
+  name: string;
+  path: string;
+  gitRemote: string | undefined;
+  branch: string;
+  autoTrack: boolean;
+  trackedFiles: string[];
+  metadata: {
+    addedAt: string;
+    lastSync: string;
+    lastModified: string;
+  };
+}
+
+interface RawProjectRegistry {
+  projects: Record<string, RawProject>;
+}
+
+interface ProjectToSave {
+  name: string;
+  path: string;
+  gitRemote: string | undefined;
+  branch: string;
+  autoTrack: boolean;
+  trackedFiles: string[];
+  metadata: {
+    addedAt: string;
+    lastSync: string;
+    lastModified: string;
+  };
+}
+
 import { ConfigError } from "../utils/errors.ts";
 import { getConfigPath, getProjectsPath } from "../utils/paths.ts";
 
@@ -68,7 +101,7 @@ export class ConfigManager {
       await ensureDir(configDir);
 
       // Remove syncRepoPath from saved config as it's determined by location
-      const { syncRepoPath, ...configToSave } = config;
+      const { syncRepoPath: _syncRepoPath, ...configToSave } = config;
       const yaml = stringify(configToSave, { indent: 2 });
 
       await Deno.writeTextFile(configPath, yaml);
@@ -88,19 +121,18 @@ export class ConfigManager {
 
     try {
       const content = await Deno.readTextFile(projectsPath);
-      const data = parse(content) as any;
+      const data = parse(content) as RawProjectRegistry;
 
       // Convert date strings back to Date objects
       const projects: Record<string, Project> = {};
 
       for (const [name, project] of Object.entries(data.projects || {})) {
-        const p = project as any;
         projects[name] = {
-          ...p,
+          ...project,
           metadata: {
-            addedAt: new Date(p.metadata.addedAt),
-            lastSync: new Date(p.metadata.lastSync),
-            lastModified: new Date(p.metadata.lastModified),
+            addedAt: new Date(project.metadata.addedAt),
+            lastSync: new Date(project.metadata.lastSync),
+            lastModified: new Date(project.metadata.lastModified),
           },
         };
       }
@@ -121,7 +153,7 @@ export class ConfigManager {
       await ensureDir(projectsDir);
 
       // Convert dates to ISO strings for YAML serialization
-      const projectsToSave: Record<string, any> = {};
+      const projectsToSave: Record<string, ProjectToSave> = {};
 
       for (const [name, project] of Object.entries(registry.projects)) {
         projectsToSave[name] = {

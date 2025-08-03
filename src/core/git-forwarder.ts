@@ -1,5 +1,4 @@
 import { join } from "@std/path";
-import { CommandOutput } from "../types/index.ts";
 import { runGitCommand } from "../utils/git.ts";
 import { Logger } from "../utils/logger.ts";
 import { ConfigManager } from "./config-manager.ts";
@@ -28,7 +27,7 @@ export class GitForwarder {
     const currentProject = await this.detectCurrentProject();
 
     // Build git command args
-    const gitArgs = await this.buildGitArgs(command, args, currentProject);
+    const gitArgs = this.buildGitArgs(command, args, currentProject);
 
     // Execute git command
     const result = await runGitCommand(gitArgs.args, {
@@ -73,11 +72,11 @@ export class GitForwarder {
     }
   }
 
-  private async buildGitArgs(
+  private buildGitArgs(
     command: string,
     originalArgs: string[],
     currentProject?: string,
-  ): Promise<{ args: string[]; cwd: string }> {
+  ): { args: string[]; cwd: string } {
     const syncRepoPath = this.syncRepo.repoPath;
 
     // Commands that should be scoped to current project

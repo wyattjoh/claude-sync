@@ -30,7 +30,7 @@ export const addCommand = new Command()
 
       // Detect current project
       const detector = new ProjectDetector();
-      const { gitInfo, suggestedName } = await detector.detectCurrentProject();
+      const { gitInfo } = await detector.detectCurrentProject();
 
       // Find project in registry
       const configManager = new ConfigManager(syncRepo.repoPath);
