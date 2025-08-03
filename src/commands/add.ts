@@ -105,7 +105,7 @@ export const addCommand = new Command()
       logger.info(`Adding ${filesToAdd.length} file(s)...`);
       const symlinkManager = new SymlinkManager(logger);
       const projectDir = await syncRepo.getProjectPath(projectName);
-      const created = await symlinkManager.createSymlinks(filesToAdd, projectDir, gitInfo.root);
+      const created = await symlinkManager.createSymlinks(filesToAdd, projectDir);
 
       // Update project
       project.trackedFiles.push(...created);

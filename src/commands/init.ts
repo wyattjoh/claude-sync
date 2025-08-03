@@ -98,7 +98,7 @@ export const initCommand = new Command()
         logger.info("Creating symlinks...");
         const symlinkManager = new SymlinkManager(logger);
         const projectDir = await syncRepo.ensureProjectDir(projectName);
-        await symlinkManager.createSymlinks(files, projectDir, gitInfo.root);
+        await symlinkManager.createSymlinks(files, projectDir);
       }
 
       // Commit if there are changes

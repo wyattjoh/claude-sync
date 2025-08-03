@@ -14,7 +14,6 @@ export class SymlinkManager {
   async createSymlinks(
     files: ClaudeFile[],
     projectDir: string,
-    _projectRoot: string,
   ): Promise<string[]> {
     const createdLinks: string[] = [];
 

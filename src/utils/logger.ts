@@ -33,14 +33,6 @@ export class Logger {
     return bold(text);
   }
 
-  dim(text: string): string {
-    return gray(text);
-  }
-
-  formatPath(path: string): string {
-    return gray(path);
-  }
-
   formatCommand(cmd: string): string {
     return bold(cmd);
   }
