@@ -22,7 +22,7 @@ export const initCommand = new Command()
 
     try {
       // Initialize sync repository
-      const syncRepo = new SyncRepository(options.syncRepo, logger);
+      const syncRepo = new SyncRepository(options.syncRepo, logger, options.yes);
       await syncRepo.initialize();
 
       // Detect git repository
@@ -75,7 +75,6 @@ export const initCommand = new Command()
       const project: Project = {
         name: projectName,
         path: gitInfo.root,
-        gitRemote: gitInfo.remote,
         branch: gitInfo.branch,
         autoTrack: true,
         trackedFiles: files.map((f) => f.relativePath),
@@ -85,6 +84,11 @@ export const initCommand = new Command()
           lastModified: new Date(),
         },
       };
+
+      // Only add gitRemote if it exists
+      if (gitInfo.remote) {
+        project.gitRemote = gitInfo.remote;
+      }
 
       // Save project
       await configManager.addProject(projectName, project);

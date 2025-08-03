@@ -1,5 +1,6 @@
 import { ensureDir, exists } from "@std/fs";
 import { join } from "@std/path";
+import { Confirm, Input } from "@cliffy/prompt";
 import { SyncRepoError } from "../utils/errors.ts";
 import { gitAdd, gitCommit, initGitRepo, isGitRepository, runGitCommand } from "../utils/git.ts";
 import { Logger } from "../utils/logger.ts";
@@ -10,11 +11,13 @@ export class SyncRepository {
   private path: string;
   private logger: Logger;
   private configManager: ConfigManager;
+  private skipPrompts: boolean;
 
-  constructor(path?: string, logger?: Logger) {
+  constructor(path?: string, logger?: Logger, skipPrompts = false) {
     this.path = path || getDefaultSyncRepoPath();
     this.logger = logger || new Logger();
     this.configManager = new ConfigManager(this.path);
+    this.skipPrompts = skipPrompts;
   }
 
   get repoPath(): string {
@@ -26,10 +29,13 @@ export class SyncRepository {
       // Ensure sync repo directory exists
       await ensureDir(this.path);
 
+      let isNewRepository = false;
+
       // Initialize git if needed
       if (!await isGitRepository(this.path)) {
         this.logger.info(`Initializing sync repository at ${this.path}`);
         await initGitRepo(this.path);
+        isNewRepository = true;
 
         // Create initial .gitignore
         const gitignorePath = join(this.path, ".gitignore");
@@ -50,10 +56,22 @@ export class SyncRepository {
         await gitCommit(this.path, "chore: initialize claude-sync repository");
       }
 
-      // Save default config if it doesn't exist
+      // Load or create default config
+      let config = await this.configManager.loadConfig();
       const configPath = join(this.path, "config", "claude-sync.yaml");
-      if (!await exists(configPath)) {
-        const config = await this.configManager.loadConfig();
+      const configExists = await exists(configPath);
+
+      // Set up remote repository if this is a new repository and no config exists
+      if (isNewRepository && !configExists && !this.skipPrompts) {
+        this.logger.info("");
+        const remoteUrl = await this.setupRemoteRepository();
+        if (remoteUrl) {
+          config = { ...config, remoteUrl };
+        }
+      }
+
+      // Save config
+      if (!configExists || config.remoteUrl) {
         await this.configManager.saveConfig(config);
       }
 
@@ -178,6 +196,90 @@ export class SyncRepository {
     } else {
       await runGitCommand(["remote", "add", name, url], { cwd: this.path });
       this.logger.info(`Added remote ${name}: ${url}`);
+    }
+  }
+
+  private async testRemoteConnectivity(url: string): Promise<boolean> {
+    try {
+      const result = await runGitCommand(
+        ["ls-remote", "--heads", url],
+        { cwd: this.path, throwOnError: false },
+      );
+      return result.success;
+    } catch {
+      return false;
+    }
+  }
+
+  private async setupRemoteRepository(): Promise<string | undefined> {
+    const connectToRemote = await Confirm.prompt({
+      message: "Connect to remote repository? (recommended for backup/sharing)",
+      default: false,
+    });
+
+    if (!connectToRemote) {
+      return undefined;
+    }
+
+    while (true) {
+      const remoteUrl = await Input.prompt({
+        message: "Remote repository URL:",
+        hint:
+          "e.g., git@github.com:user/claude-sync.git or https://github.com/user/claude-sync.git",
+      });
+
+      if (!remoteUrl.trim()) {
+        this.logger.warn("Empty URL provided");
+        continue;
+      }
+
+      this.logger.info("Testing remote connectivity...");
+      const isReachable = await this.testRemoteConnectivity(remoteUrl);
+
+      if (!isReachable) {
+        this.logger.warn("Could not connect to remote repository");
+        const retry = await Confirm.prompt({
+          message: "Try a different URL?",
+          default: true,
+        });
+
+        if (!retry) {
+          this.logger.info("Continuing without remote repository");
+          return undefined;
+        }
+        continue;
+      }
+
+      try {
+        await this.setRemote(remoteUrl);
+        this.logger.success(`Remote repository configured: ${remoteUrl}`);
+
+        // Attempt initial push
+        this.logger.info("Pushing initial commit to remote...");
+        try {
+          await this.push();
+          this.logger.success("Initial push completed");
+        } catch (error) {
+          this.logger.warn(
+            `Initial push failed: ${error instanceof Error ? error.message : String(error)}`,
+          );
+          this.logger.info("You can push manually later with 'claude-sync push'");
+        }
+
+        return remoteUrl;
+      } catch (error) {
+        this.logger.error(
+          `Failed to configure remote: ${error instanceof Error ? error.message : String(error)}`,
+        );
+        const retry = await Confirm.prompt({
+          message: "Try again?",
+          default: false,
+        });
+
+        if (!retry) {
+          return undefined;
+        }
+      }
     }
   }
 }

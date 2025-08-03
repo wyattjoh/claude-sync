@@ -6,7 +6,7 @@ import { Project, ProjectRegistry, SyncConfig } from "../types/index.ts";
 interface RawProject {
   name: string;
   path: string;
-  gitRemote: string | undefined;
+  gitRemote?: string;
   branch: string;
   autoTrack: boolean;
   trackedFiles: string[];
@@ -24,7 +24,7 @@ interface RawProjectRegistry {
 interface ProjectToSave {
   name: string;
   path: string;
-  gitRemote: string | undefined;
+  gitRemote?: string;
   branch: string;
   autoTrack: boolean;
   trackedFiles: string[];
@@ -101,8 +101,12 @@ export class ConfigManager {
       await ensureDir(configDir);
 
       // Remove syncRepoPath from saved config as it's determined by location
+      // Also filter out undefined values
       const { syncRepoPath: _syncRepoPath, ...configToSave } = config;
-      const yaml = stringify(configToSave, { indent: 2 });
+      const filteredConfig = Object.fromEntries(
+        Object.entries(configToSave).filter(([_key, value]) => value !== undefined),
+      );
+      const yaml = stringify(filteredConfig, { indent: 2 });
 
       await Deno.writeTextFile(configPath, yaml);
     } catch (error) {
@@ -157,7 +161,12 @@ export class ConfigManager {
 
       for (const [name, project] of Object.entries(registry.projects)) {
         projectsToSave[name] = {
-          ...project,
+          name: project.name,
+          path: project.path,
+          gitRemote: project.gitRemote,
+          branch: project.branch,
+          autoTrack: project.autoTrack,
+          trackedFiles: project.trackedFiles,
           metadata: {
             addedAt: project.metadata.addedAt.toISOString(),
             lastSync: project.metadata.lastSync.toISOString(),
@@ -166,7 +175,9 @@ export class ConfigManager {
         };
       }
 
-      const yaml = stringify({ projects: projectsToSave }, { indent: 2 });
+      // Clean the data to remove any undefined values at any level
+      const cleanData = JSON.parse(JSON.stringify({ projects: projectsToSave }));
+      const yaml = stringify(cleanData, { indent: 2 });
       await Deno.writeTextFile(projectsPath, yaml);
     } catch (error) {
       throw new ConfigError(

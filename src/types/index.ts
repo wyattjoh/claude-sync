@@ -1,7 +1,7 @@
 export interface Project {
   name: string;
   path: string;
-  gitRemote: string | undefined;
+  gitRemote?: string;
   branch: string;
   autoTrack: boolean;
   trackedFiles: string[];
@@ -28,6 +28,7 @@ export interface SyncConfig {
   commitStyle: "conventional" | "simple";
   filePatterns: string[];
   excludePatterns: string[];
+  remoteUrl?: string;
   gitConfig?: {
     userName?: string;
     userEmail?: string;
