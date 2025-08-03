@@ -1,0 +1,15 @@
+version: 1
+defaultBranch: main
+autoCommit: true
+commitStyle: conventional
+filePatterns:
+  - CLAUDE.local.md
+  - .claude/settings.local.json
+  - .claude/commands/*.md
+  - .claude/agents/*.md
+excludePatterns:
+  - node_modules
+  - .git
+  - dist
+  - build
+  - '*.log'
