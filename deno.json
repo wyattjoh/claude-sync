@@ -1,6 +1,7 @@
 {
   "name": "@wyattjoh/claude-sync",
   "version": "0.1.0",
+  "license": "MIT",
   "exports": "./src/main.ts",
   "tasks": {
     "dev": "deno run --watch --allow-read --allow-write --allow-env --allow-run src/main.ts",

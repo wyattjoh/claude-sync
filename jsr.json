@@ -1,0 +1,19 @@
+{
+  "name": "@wyattjoh/claude-sync",
+  "version": "0.1.0",
+  "license": "MIT",
+  "exports": "./src/main.ts",
+  "publish": {
+    "include": [
+      "LICENSE",
+      "README.md",
+      "src/**/*.ts",
+      "deno.json"
+    ],
+    "exclude": [
+      "src/testdata/",
+      "src/fixtures/",
+      "tests/"
+    ]
+  }
+}

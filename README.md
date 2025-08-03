@@ -15,7 +15,22 @@ The tool feels like a natural extension of git, using familiar commands like `st
 
 ## Installation
 
-### Direct Download (Recommended)
+### JSR (Recommended)
+
+Install globally with Deno:
+
+```bash
+deno install -g --allow-read --allow-write --allow-env --allow-run jsr:@wyattjoh/claude-sync
+```
+
+Or add to your project and install:
+
+```bash
+deno add jsr:@wyattjoh/claude-sync
+deno install -g jsr:@wyattjoh/claude-sync
+```
+
+### Direct Download
 
 ```bash
 # Build from source
