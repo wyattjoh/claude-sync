@@ -134,3 +134,7 @@ Default tracked patterns (configurable):
 - Unit tests for utility functions in `tests/utils/`
 - Core business logic should be tested in isolation
 - Use Deno's built-in test runner with appropriate permissions
+
+## Workflow Guidelines
+
+- Remember to always format using `deno fmt` and resolve any formatting issues after you're finished creating or updating files.
